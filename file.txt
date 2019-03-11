@@ -1,4 +1,5 @@
-Genesis
-End Genesis
-loop 5 times;
-endLoop
+
+lop 5 times
+print c
+
+endoop

@@ -7,32 +7,31 @@ import Tokens
 %tokentype { Token }
 %error { parseError }
 %token
-    int { TokenInt  $$ }
-    var { TokenVar $$ }
-    print { TokenPrint }
-    loop { TokenLoop }
-    endLoop { TokenEndLoop }
-    '=' { TokenEq }
-    '+' { TokenPlus }
-    '-' { TokenMinus }
-    '*' { TokenTimes }
-    '^' { TokenExp }
-    '/' { TokenDiv }
-    '(' { TokenLParen }
-    ')' { TokenRParen }
-    '[' { TokenOpenMat }
-    ']' { TokenCloseMat }
-    ';' { TokenEndExpr}
+    int { TokenInt _ $$ }
+    var { TokenVar _ $$ }
+    print { TokenPrint _ }
+    loop { TokenLoop _ }
+    endLoop { TokenEndLoop _ }
+    '=' { TokenEq _ }
+    '+' { TokenPlus _ }
+    '-' { TokenMinus _ }
+    '*' { TokenTimes _ }
+    '^' { TokenExp _ }
+    '/' { TokenDiv _ }
+    '(' { TokenLParen _ }
+    ')' { TokenRParen _ }
+    '[' { TokenOpenMat _ }
+    ']' { TokenCloseMat _ }
+    ';' { TokenEndExpr _ }
 
 %left '+' '-'
 %left '*' '/'
 %left '^'
 %%
-ListExp :
-          Exp { [$1] }
-        | Exp ';' ListExp { $1 : $3 }
-Exp :
-      loop Exp Exp endLoop   { Loop $2 $3 }
+ListExp : Exp { [$1] }
+        | Exp ListExp { $1 : $2 }
+
+Exp : loop Exp ListExp endLoop   { Loop $2 $3 }
     | var '[' int ']' '[' int ']' { Mat2 $1 $3 $6}
     | var '[' int ']'        { Mat1 $1 $3 }
     | print Exp              { Print $2 }
@@ -48,13 +47,13 @@ Exp :
 
 {
 parseError :: [Token] -> a
-parseError xs = error "Unknown Parse error"
+parseError []     = error "Unknown Parse error"
+parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
-data Exp =
-           Plus Exp Exp
+data Exp =  Plus Exp Exp
          | Assign String Exp
          | Print Exp
-         | Loop Exp Exp
+         | Loop Exp [Exp]
          | Minus Exp Exp
          | Times Exp Exp
          | Div Exp Exp
