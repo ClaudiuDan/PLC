@@ -28,14 +28,19 @@ import Tokens
 %left '*' '/'
 %left '^'
 %%
+
+ListStatement : Statement { [$1] }
+              | Statement ListStatement { $1 : $2 }
+
+Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
+          | var '=' Exp { Assign $1 $3 }
+          | print Exp              { Print $2 }
+
 ListExp : Exp { [$1] }
         | Exp ListExp { $1 : $2 }
 
-Exp : loop Exp ListExp endLoop   { Loop $2 $3 }
-    | var '[' int ']' '[' int ']' { Mat2 $1 $3 $6}
+Exp : var '[' int ']' '[' int ']' { Mat2 $1 $3 $6}
     | var '[' int ']'        { Mat1 $1 $3 }
-    | print Exp              { Print $2 }
-    | var '=' Exp            { Assign $1 $3 }
     | Exp '+' Exp            { Plus $1 $3 }
     | Exp '-' Exp            { Minus $1 $3 }
     | Exp '*' Exp            { Times $1 $3 }
@@ -51,9 +56,6 @@ parseError []     = error "Unknown Parse error"
 parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
 data Exp =  Plus Exp Exp
-         | Assign String Exp
-         | Print Exp
-         | Loop Exp [Exp]
          | Minus Exp Exp
          | Times Exp Exp
          | Div Exp Exp
@@ -63,4 +65,9 @@ data Exp =  Plus Exp Exp
          | Mat2 String Int Int
          | Mat1 String Int
          deriving Show
+data Statement = 
+                 Assign String Exp
+               | Loop Exp [Statement]
+               | Print Exp
+               deriving Show
 }
