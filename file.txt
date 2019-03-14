@@ -1,6 +1,3 @@
-x = 2 * 3
-loop 1 * 2 + 1 times
-  loop 2 times 
-    print x
-  endLoop
-endLoop
+
+
+112
