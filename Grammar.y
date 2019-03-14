@@ -65,6 +65,7 @@ data Exp =  Plus Exp Exp
          | Mat2 String Int Int
          | Mat1 String Int
          deriving Show
+         
 data Statement = 
                  Assign String Exp
                | Loop Exp [Statement]
