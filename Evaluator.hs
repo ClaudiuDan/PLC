@@ -2,7 +2,7 @@ module Evaluator where
 import Grammar
 import Tokens 
 
-data Variable = Variable String Int
+data Variable = Variable String Exp
 
 run :: IO ()
 run = do
@@ -11,17 +11,35 @@ run = do
 
 evalStatements :: [Variable] -> [Statement] -> IO ()
 evalStatements _ [] = do return ()
-evalStatements variables ( (Print s) : statements) = do 
-                                                         print s
-                                                         evalStatements variables statements
-evalStatements variables ( (Assign v expr) : statements) = do 
-                                                           evalStatements ((Variable v (evalExpr expr)) : variables) statements
+evalStatements vars ((Print expr) : statements) = do 
+                                                  print $ evalExpr expr vars
+                                                  evalStatements vars statements
+evalStatements vars ((Assign v expr) : statements) = do 
+                                                     evalStatements ((Variable v expr) : vars) statements
+evalStatements vars ((Loop expr s) : statements) = do
+                                                   loop (evalNum expr) vars s
+                                                   evalStatements vars statements
 
+loop :: Int -> [Variable] -> [Statement] -> IO ()
+loop 0 _ _ = return ()
+loop n vars statements = do 
+                         evalStatements vars statements
+                         loop (n - 1) vars statements
 
-evalExpr :: Exp -> Int
-evalExpr (Plus (Int a) (Int b)) = a + b
+evalExpr :: Exp -> [Variable] -> String
+evalExpr (Var x) vars = show $ lookVar x vars
+evalExpr expr vars = show $ evalNum expr
 
+evalNum :: Exp -> Int
+evalNum (Int a) = a
+evalNum (Plus a b) = evalNum a + evalNum b
+evalNum (Times a b) = evalNum a * evalNum b
 
+lookVar :: String -> [Variable] -> Int
+lookVar x [] = 0
+lookVar x ((Variable a expr) : vars) 
+  | x == a = evalNum expr
+  | otherwise = lookVar x vars
 
 main :: IO ([Statement])
 main = do
