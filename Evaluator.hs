@@ -1,35 +1,36 @@
 module Evaluator where
 import Grammar
 import Tokens 
-
+import InputHandler
 data Variable = Variable String Exp
 
 run :: IO ()
 run = do
       statements <- main
-      evalStatements [] statements []
+      evalStatements [] statements
 
-evalStatements :: [Variable] -> [Statement] -> [[Int]] -> IO ()
-evalStatements _ [] input = do return ()
-evalStatements vars ((Print expr) : statements) input = do 
-                                                  print $ evalExpr expr vars input
-                                                  evalStatements vars statements input
-evalStatements vars ((Assign v expr) : statements) input = do 
-                                                           evalStatements ((Variable v expr) : vars) statements input
-evalStatements vars ((Loop expr s) : statements) input = do
-                                                         loop (evalNum expr) vars s input
-                                                         evalStatements vars statements input
+evalStatements :: [Variable] -> [Statement] -> IO ()
+evalStatements _ [] = do return ()
+evalStatements vars ((Print expr) : statements) = do 
+                                                  s <- evalExpr expr vars
+                                                  print s
+                                                  evalStatements vars statements
+evalStatements vars ((Assign v expr) : statements) = do 
+                                                     evalStatements ((Variable v expr) : vars) statements
+evalStatements vars ((Loop expr s) : statements) = do
+                                                   loop (evalNum expr) vars s
+                                                   evalStatements vars statements
 
-loop :: Int -> [Variable] -> [Statement] -> [[Int]] -> IO ()
-loop 0 _ _ _ = return ()
-loop n vars statements input = do 
-                               evalStatements vars statements input
-                               loop (n - 1) vars statements input
+loop :: Int -> [Variable] -> [Statement] -> IO ()
+loop 0 _ _ = return ()
+loop n vars statements = do 
+                         evalStatements vars statements
+                         loop (n - 1) vars statements
 
-evalExpr :: Exp -> [Variable] -> [[Int]] -> String
---evalExpr (Mat2 name line col) vars input = show (getInput input line col)
-evalExpr (Var x) vars input = show $ lookVar x vars
-evalExpr expr vars input = show $ evalNum expr
+evalExpr :: Exp -> [Variable]  -> IO (String)
+--evalExpr (Read) vars = do return 
+evalExpr (Var x) vars = do return (show $ lookVar x vars)
+evalExpr expr vars = do return (show $ evalNum expr)
 
 evalNum :: Exp -> Int
 evalNum (Int a) = a
@@ -41,30 +42,6 @@ lookVar x [] = 0
 lookVar x ((Variable a expr) : vars) 
   | x == a = evalNum expr
   | otherwise = lookVar x vars
-
-getInputLine :: IO ()
-getInputLine = do 
-               s <- getLine 
-               print $ parseInputLine s
-  
-parseInputLine :: [Char] -> [Int]
-parseInputLine [] = []
-parseInputLine ('\n' : cs) = []
-parseInputLine (' ' : cs) = parseInputLine cs
-parseInputLine cs = (read $ getDigits cs) : (parseInputLine $ eliminateDigitsUntilSpace cs)
-
-eliminateDigitsUntilSpace :: [Char] -> [Char]
-eliminateDigitsUntilSpace [] = []
-eliminateDigitsUntilSpace (c : cs) 
-  | c == ' ' = c : cs
-  | otherwise = eliminateDigitsUntilSpace cs  
- 
-getDigits :: [Char] -> String
-getDigits [] = []
-getDigits (c : cs) 
-  | c == ' ' = []
-  | c == '\n' = []
-  | otherwise = c : (getDigits cs)
  
 main :: IO ([Statement])
 main = do

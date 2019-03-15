@@ -20,8 +20,6 @@ import Tokens
     '/' { TokenDiv _ }
     '(' { TokenLParen _ }
     ')' { TokenRParen _ }
-    '[' { TokenOpenMat _ }
-    ']' { TokenCloseMat _ }
     ';' { TokenEndExpr _ }
 
 %left '+' '-'
@@ -39,9 +37,7 @@ Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
 ListExp : Exp { [$1] }
         | Exp ListExp { $1 : $2 }
 
-Exp : var '[' int ']' '[' int ']' { Mat2 $1 $3 $6}
-    | var '[' int ']'        { Mat1 $1 $3 }
-    | Exp '+' Exp            { Plus $1 $3 }
+Exp : Exp '+' Exp            { Plus $1 $3 }
     | Exp '-' Exp            { Minus $1 $3 }
     | Exp '*' Exp            { Times $1 $3 }
     | Exp '/' Exp            { Div $1 $3 }
@@ -62,8 +58,7 @@ data Exp =  Plus Exp Exp
          | Expo Exp Exp
          | Int Int
          | Var String
-         | Mat2 String Int Int
-         | Mat1 String Int
+         | Read 
          deriving Show
          
 data Statement = 

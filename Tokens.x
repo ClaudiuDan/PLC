@@ -27,9 +27,7 @@ $white+       ;
   \/                { \p s -> TokenDiv p }
   \(                { \p s -> TokenLParen p }
   \)                { \p s -> TokenRParen p }
-  \[                { \p s -> TokenOpenMat p }
   \;                { \p s -> TokenEndExpr p }
-  \]                { \p s -> TokenCloseMat p }
   $alpha [$alpha $digit \_ \’]*   { \p s -> TokenVar p s }
 
 {
@@ -50,9 +48,7 @@ data Token =
   TokenDiv      AlexPosn |
   TokenLParen   AlexPosn |
   TokenRParen   AlexPosn |
-  TokenVar      AlexPosn String |
-  TokenOpenMat  AlexPosn |
-  TokenCloseMat AlexPosn
+  TokenVar      AlexPosn String 
   deriving (Eq,Show)
 
 
@@ -72,8 +68,6 @@ tokenPosn (TokenDiv (AlexPn a l c) )        = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenOpenMat (AlexPn a l c) )    = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenCloseMat (AlexPn a l c) )   = show(l) ++ ":" ++ show(c)
 
 
 
