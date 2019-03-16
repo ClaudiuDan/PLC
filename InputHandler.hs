@@ -1,9 +1,11 @@
 module InputHandler where 
-
+import System.IO (isEOF)
 getInputNumber:: Int -> IO (Int)
 getInputNumber x = do 
-                   c <- getChar 
-                   if isDigit c == False 
+                   done <- isEOF
+                   c <- getChar
+                   print (c : " uite ce am facut")
+                   if (isDigit c) && done == False 
                      then return x
                    else do
                      res <- getInputNumber (x * 10 + read [c])  

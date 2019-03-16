@@ -16,6 +16,7 @@ $white+       ;
   times;
   print             { \p s -> TokenPrint p }
   sqrt              { \p s -> TokenSqrt p }
+  read              { \p s -> TokenRead p }
   \^                { \p s -> TokenExp p }
   loop              { \p s -> TokenLoop p }
   endLoop           { \p s -> TokenEndLoop p }
@@ -48,6 +49,7 @@ data Token =
   TokenDiv      AlexPosn |
   TokenLParen   AlexPosn |
   TokenRParen   AlexPosn |
+  TokenRead     AlexPosn |
   TokenVar      AlexPosn String 
   deriving (Eq,Show)
 
@@ -68,7 +70,7 @@ tokenPosn (TokenDiv (AlexPn a l c) )        = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c)
-
+tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 
 
 

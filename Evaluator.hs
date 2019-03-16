@@ -1,13 +1,13 @@
-module Evaluator where
+module Main where
 import Grammar
 import Tokens 
 import InputHandler
 data Variable = Variable String Exp
 
-run :: IO ()
-run = do
-      statements <- main
-      evalStatements [] statements
+main :: IO ()
+main = do
+       statements <- start
+       evalStatements [] statements
 
 evalStatements :: [Variable] -> [Statement] -> IO ()
 evalStatements _ [] = do return ()
@@ -28,7 +28,10 @@ loop n vars statements = do
                          loop (n - 1) vars statements
 
 evalExpr :: Exp -> [Variable]  -> IO (String)
---evalExpr (Read) vars = do return 
+evalExpr (Read) vars = do
+                       x <- getInputNumber 0 
+                       print (show x ++ " in eval")
+                       return $ show x
 evalExpr (Var x) vars = do return (show $ lookVar x vars)
 evalExpr expr vars = do return (show $ evalNum expr)
 
@@ -43,10 +46,10 @@ lookVar x ((Variable a expr) : vars)
   | x == a = evalNum expr
   | otherwise = lookVar x vars
  
-main :: IO ([Statement])
-main = do
-  s <- readFile "file.txt"
-  return (doSomethingWith s)
+start :: IO ([Statement])
+start = do
+        s <- readFile "file.txt"
+        return (doSomethingWith s)
 
 doSomethingWith :: String -> [Statement]
 doSomethingWith str = parseCalc $ alexScanTokens str

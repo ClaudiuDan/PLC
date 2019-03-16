@@ -10,6 +10,7 @@ import Tokens
     int { TokenInt _ $$ }
     var { TokenVar _ $$ }
     print { TokenPrint _ }
+    read { TokenRead _ }
     loop { TokenLoop _ }
     endLoop { TokenEndLoop _ }
     '=' { TokenEq _ }
@@ -42,6 +43,7 @@ Exp : Exp '+' Exp            { Plus $1 $3 }
     | Exp '*' Exp            { Times $1 $3 }
     | Exp '/' Exp            { Div $1 $3 }
     | Exp '^' Exp            { Expo $1 $3 }
+    | read                   { Read }
     | '(' Exp ')'            { $2 }
     | int                    { Int $1 }
     | var                    { Var $1 }
