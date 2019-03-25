@@ -53,7 +53,7 @@ evalStatements vars ((Loop expr s) : statements) = do
 loop :: Int -> [Variable] -> [Statement] -> IO ()
 loop 0 _ _ = return ()
 loop n vars statements = do
-                         evalStatements vars statements
+                         evalStatements vars  statements
                          loop (n - 1) vars statements
 
 evalExpr :: Exp -> [Variable]  -> IO (String)
