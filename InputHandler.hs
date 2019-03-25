@@ -1,18 +1,45 @@
-module InputHandler where 
+module InputHandler where
 import System.IO (isEOF)
-getInputNumber:: Int -> IO (Int)
-getInputNumber x = do 
-                   done <- isEOF
-                   c <- getChar
-                   print (c : " uite ce am facut")
-                   if (isDigit c) && done == False 
-                     then return x
-                   else do
-                     res <- getInputNumber (x * 10 + read [c])  
-                     return res
+
+getInputNumber:: Int -> Bool -> IO (Int)
+getInputNumber x isNegative = do
+                              done <- isEOF
+                              if done
+                                then do
+                                     if isNegative
+                                       then do return ( negate x )
+                                     else do
+                                          return x
+                              else do
+                                   c <- getChar
+                                   if ( (not $ isDigit c ) && c /= '-')
+                                     then do
+                                          if isNegative
+                                            then do return ( negate x )
+                                          else do
+                                               return x
+                                   else do
+                                        if (c == '-')
+                                          then do
+                                               res <- getInputNumber 0 True
+                                               return res
+                                        else do
+                                             res <- getInputNumber (x * 10 + read [c]) isNegative
+                                             return res
+
+
+
+
+
+
+
+
+
+
+
 
 isDigit :: Char -> Bool
-isDigit c 
+isDigit c
   | c >= '0' && c <= '9' = True
   | otherwise = False
 
@@ -24,13 +51,13 @@ parseInputLine cs = (read $ getDigits cs) : (parseInputLine $ eliminateDigitsUnt
 
 eliminateDigitsUntilSpace :: [Char] -> [Char]
 eliminateDigitsUntilSpace [] = []
-eliminateDigitsUntilSpace (c : cs) 
+eliminateDigitsUntilSpace (c : cs)
   | c == ' ' = c : cs
-  | otherwise = eliminateDigitsUntilSpace cs  
- 
+  | otherwise = eliminateDigitsUntilSpace cs
+
 getDigits :: [Char] -> String
 getDigits [] = []
-getDigits (c : cs) 
+getDigits (c : cs)
   | c == ' ' = []
   | c == '\n' = []
   | otherwise = c : (getDigits cs)

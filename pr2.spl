@@ -1,0 +1,5 @@
+loop 3 times
+x = read
+print x printString space
+print x printString endline
+endLoop

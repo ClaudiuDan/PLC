@@ -9,6 +9,7 @@ import Tokens
 %token
     int { TokenInt _ $$ }
     var { TokenVar _ $$ }
+    printString { TokenPrintString _ }
     print { TokenPrint _ }
     read { TokenRead _ }
     loop { TokenLoop _ }
@@ -21,7 +22,6 @@ import Tokens
     '/' { TokenDiv _ }
     '(' { TokenLParen _ }
     ')' { TokenRParen _ }
-    ';' { TokenEndExpr _ }
 
 %left '+' '-'
 %left '*' '/'
@@ -34,6 +34,7 @@ ListStatement : Statement { [$1] }
 Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | var '=' Exp { Assign $1 $3 }
           | print Exp              { Print $2 }
+          | printString Exp        { PrintString $2}
 
 ListExp : Exp { [$1] }
         | Exp ListExp { $1 : $2 }
@@ -60,12 +61,12 @@ data Exp =  Plus Exp Exp
          | Expo Exp Exp
          | Int Int
          | Var String
-         | Read 
+         | Read
          deriving Show
-         
-data Statement = 
-                 Assign String Exp
+
+data Statement = Assign String Exp
                | Loop Exp [Statement]
                | Print Exp
+               | PrintString Exp
                deriving Show
 }

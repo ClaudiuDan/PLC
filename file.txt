@@ -1,2 +1,2 @@
-print 3 + 2 + 2
-print read
+x = 3+2*3
+print x
