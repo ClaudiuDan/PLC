@@ -21,20 +21,22 @@ noParse :: ErrorCall -> IO ()
 noParse e = do let err =  show e
                hPutStr stderr err
                return ()
-main' :: IO()
+main' :: IO ()
 main' = do
         (fileName : _ ) <- getArgs
         sourceText <- readFile fileName
         let parsedProg = parseCalc (alexScanTokens sourceText)
-        evalStatements [] parsedProg
+        vars <- evalStatements [] parsedProg
+        return ()
 
 
-evalStatements :: [Variable] -> [Statement] -> IO ()
-evalStatements _ [] = do return ()
+evalStatements :: [Variable] -> [Statement] -> IO ([Variable])
+evalStatements vars [] = do return (vars)
 evalStatements vars ((Print expr) : statements) = do
                                                   s <- evalExpr expr vars
                                                   putStr . id $ s
-                                                  evalStatements vars statements
+                                                  newVars <- evalStatements vars statements
+                                                  return newVars
 evalStatements vars ((PrintString expr ) : statements) = do
                                                   c <- evalExpr expr vars
                                                   if (c == "endline")
@@ -42,19 +44,23 @@ evalStatements vars ((PrintString expr ) : statements) = do
                                                     else if (c == "space")
                                                       then putStr . id $ " "
                                                       else putStr . id $ c
-                                                  evalStatements vars statements
+                                                  newVars <- evalStatements vars statements
+                                                  return newVars
 evalStatements vars ((Assign v expr) : statements) = do
                                                      r <- evalExpr expr vars
-                                                     evalStatements ((Variable v r) : vars) statements
+                                                     newVars <- evalStatements ((Variable v r) : vars) statements
+                                                     return newVars
 evalStatements vars ((Loop expr s) : statements) = do
-                                                   loop (evalNum expr vars) vars s
-                                                   evalStatements vars statements
+                                                   newVars <- loop (evalNum expr vars) vars s
+                                                   newVars2 <- evalStatements newVars statements
+                                                   return newVars2
 
-loop :: Int -> [Variable] -> [Statement] -> IO ()
-loop 0 _ _ = return ()
+loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
+loop 0 vars _ = return (vars)
 loop n vars statements = do
-                         evalStatements vars  statements
-                         loop (n - 1) vars statements
+                         newVars <- evalStatements vars  statements
+                         newVars2 <- loop (n - 1) newVars statements
+                         return newVars2
 
 evalExpr :: Exp -> [Variable]  -> IO (String)
 evalExpr (Read) vars  = do

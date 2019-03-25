@@ -1,2 +1,5 @@
-x = ad
-print x
+acc = 0
+loop 4 times
+acc = acc + read
+print acc printString endline
+endLoop

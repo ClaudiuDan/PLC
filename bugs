@@ -1,0 +1,3 @@
+	1. nu poti face read in combinatie cu altceva gen "x = read + 2"
+poti evita asta facand o variabila separata pentru valoarea din read gen "y = read    x = y + 2"
+dar e cam urat, poate schimbam

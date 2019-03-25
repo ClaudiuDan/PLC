@@ -1,0 +1,11 @@
+x1 = read
+x2 = read
+x2 = x2 + x1 
+print x1 printString endline print x2 printString endline
+loop 3 times 
+y = read
+aux = x1 + x2 + y
+x1 = x2
+x2 = aux
+print aux printString endline 
+endLoop
