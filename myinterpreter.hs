@@ -57,38 +57,20 @@ loop n vars statements = do
                          loop (n - 1) vars statements
 
 evalExpr :: Exp -> [Variable]  -> IO (String)
-evalExpr (Read) vars = do
-                       x <- getInputNumber 0 False
-                       return $ show x
+evalExpr (Read) vars  = do
+                        x <- getInputNumber 0 False
+                        return $ show x
 evalExpr (Var x) vars = do return (lookVar x vars)
-evalExpr expr vars = do return (show $ evalNum expr vars)
+evalExpr expr vars    = do return (show $ evalNum expr vars)
 
 evalNum :: Exp -> [Variable] -> Int
-evalNum (Int a) vars = a
-evalNum (Plus (Var x) (Var y)) vars   = (read $ lookVar x vars) + (read $ lookVar y vars)
-evalNum (Plus (Var x) b)       vars   = (read $ lookVar x vars) + evalNum b vars
-evalNum (Plus b (Var x))       vars   = evalNum b vars + (read $ lookVar x vars)
-evalNum (Plus a b)             vars   = evalNum a vars + evalNum b vars
-
-evalNum (Minus (Var x) (Var y)) vars  = (read $ lookVar x vars) - (read $ lookVar y vars)
-evalNum (Minus (Var x) b)       vars  = (read $ lookVar x vars) - evalNum b vars
-evalNum (Minus b (Var x))       vars  = evalNum b vars - (read $ lookVar x vars)
-evalNum (Minus a b)             vars  = evalNum a vars - evalNum b vars
-
-evalNum (Times (Var x) (Var y)) vars  = (read $ lookVar x vars) * (read $ lookVar y vars)
-evalNum (Times (Var x) b)       vars  = (read $ lookVar x vars) * evalNum b vars
-evalNum (Times b (Var x))       vars  = evalNum b vars * (read $ lookVar x vars)
-evalNum (Times a b)             vars  = evalNum a vars * evalNum b vars
-
-evalNum (Div (Var x) (Var y))   vars  = (read $ lookVar x vars) `div` (read $ lookVar y vars)
-evalNum (Div (Var x) b)         vars  = (read $ lookVar x vars) `div` evalNum b vars
-evalNum (Div b (Var x))         vars  = evalNum b vars `div` (read $ lookVar x vars)
-evalNum (Div a b)               vars  = evalNum a vars `div` evalNum b vars
-
-evalNum (Expo (Var x) (Var y))  vars = (read $ lookVar x vars) ^ (read $ lookVar y vars)
-evalNum (Expo (Var x) b)        vars = (read $ lookVar x vars) ^ evalNum b vars
-evalNum (Expo b (Var x))        vars  = evalNum b vars ^ (read $ lookVar x vars)
-evalNum (Expo a b)              vars  = evalNum a vars ^ evalNum b vars
+evalNum (Int a)     vars = a
+evalNum (Var x)     vars = (read $ lookVar x vars)
+evalNum (Plus a b)  vars  = evalNum a vars + evalNum b vars
+evalNum (Minus a b) vars  = evalNum a vars - evalNum b vars
+evalNum (Times a b) vars  = evalNum a vars * evalNum b vars
+evalNum (Div a b)   vars  = evalNum a vars `div` evalNum b vars
+evalNum (Expo a b)  vars  = evalNum a vars ^ evalNum b vars
 
 lookVar :: String -> [Variable] -> String
 lookVar x [] = x

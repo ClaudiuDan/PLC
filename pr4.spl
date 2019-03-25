@@ -1,7 +1,2 @@
-z = 0
-loop 4 times
-x = read
-z = z + x
-print z
-printString endline
-endLoop
+x = ad
+print x
