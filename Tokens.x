@@ -19,6 +19,8 @@ $white+       ;
   sqrt              { \p s -> TokenSqrt p }
   read              { \p s -> TokenRead p }
   \^                { \p s -> TokenExp p }
+  whileInput        { \p s -> TokenWhileInput p }
+  endWhileInput     { \p s -> TokenEndWhileInput p }
   loop              { \p s -> TokenLoop p }
   endLoop           { \p s -> TokenEndLoop p }
   $digit+           { \p s -> TokenInt p (read s) }
@@ -40,6 +42,8 @@ data Token =
   TokenEq       AlexPosn |
   TokenMinus    AlexPosn |
   TokenPlus     AlexPosn |
+  TokenWhileInput AlexPosn |
+  TokenEndWhileInput AlexPosn |
   TokenLoop     AlexPosn |
   TokenExp      AlexPosn |
   TokenEndLoop  AlexPosn |
@@ -71,5 +75,8 @@ tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenPrintString (AlexPn a l c) ) = show(l) ++ ":" ++ show(c)
+
+tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 
 }

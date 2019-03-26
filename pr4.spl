@@ -1,5 +1,6 @@
 acc = 0
-loop 4 times
-acc = acc + read
+whileInput
+x = read
+acc = acc + x
 print acc printString endline
-endLoop
+endWhileInput

@@ -5,6 +5,7 @@ import InputHandler
 import Control.Exception
 import System.Environment
 import System.IO
+import Control.Monad
 
 
 --c <- evalExpr expr vars
@@ -31,29 +32,35 @@ main' = do
 
 
 evalStatements :: [Variable] -> [Statement] -> IO ([Variable])
-evalStatements vars [] = do return (vars)
+evalStatements vars [] = return (vars)
 evalStatements vars ((Print expr) : statements) = do
                                                   s <- evalExpr expr vars
-                                                  putStr . id $ s
+                                                  when (s /= "$isEOF$") $ (putStr . id $ s)
                                                   newVars <- evalStatements vars statements
                                                   return newVars
 evalStatements vars ((PrintString expr ) : statements) = do
                                                   c <- evalExpr expr vars
-                                                  if (c == "endline")
-                                                    then putStrLn ""
-                                                    else if (c == "space")
-                                                      then putStr . id $ " "
-                                                      else putStr . id $ c
+                                                  when (c == "endline") $ putStrLn ""
+                                                  when (c == "space") $ putStr . id $ " "
+                                                  when ( (c /= "endline") && (c /= "space") ) $ putStr . id $ c
                                                   newVars <- evalStatements vars statements
                                                   return newVars
 evalStatements vars ((Assign v expr) : statements) = do
                                                      r <- evalExpr expr vars
-                                                     newVars <- evalStatements ((Variable v r) : vars) statements
-                                                     return newVars
+                                                     if (r /= "$isEOF$")
+                                                       then do newVars <- evalStatements ((Variable v r) : vars) statements
+                                                               return newVars
+                                                       else do newVars <- evalStatements vars statements
+                                                               return newVars
+
 evalStatements vars ((Loop expr s) : statements) = do
                                                    newVars <- loop (evalNum expr vars) vars s
                                                    newVars2 <- evalStatements newVars statements
                                                    return newVars2
+evalStatements vars ((While s) : statements) = do
+                                               newVars <- whileInput vars s
+                                               newVars2 <- evalStatements newVars statements
+                                               return newVars2
 
 loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
 loop 0 vars _ = return (vars)
@@ -62,12 +69,25 @@ loop n vars statements = do
                          newVars2 <- loop (n - 1) newVars statements
                          return newVars2
 
+whileInput :: [Variable] -> [Statement] -> IO ([Variable])
+whileInput vars statements = do
+                             eof <- isEOF
+                             if not $ eof
+                               then do
+                                 newVars <- evalStatements vars statements
+                                 newVars2 <- whileInput newVars statements
+                                 return newVars2
+                               else return vars
+
 evalExpr :: Exp -> [Variable]  -> IO (String)
 evalExpr (Read) vars  = do
-                        x <- getInputNumber 0 False
-                        return $ show x
-evalExpr (Var x) vars = do return (lookVar x vars)
-evalExpr expr vars    = do return (show $ evalNum expr vars)
+                        eof <- isEOF
+                        if eof
+                          then return ( "$isEOF$" )
+                          else do x <- getInputNumber 0 False
+                                  return $ show x
+evalExpr (Var x) vars =  return (lookVar x vars)
+evalExpr expr vars    =  return (show $ evalNum expr vars)
 
 evalNum :: Exp -> [Variable] -> Int
 evalNum (Int a)     vars = a
@@ -83,7 +103,3 @@ lookVar x [] = x
 lookVar x ((Variable a r) : vars)
   | x == a  = r
   | otherwise = lookVar x vars
-
-
-  -- && head r == '-' s -- = negate (read $ tail r)
---  | x == a = read r

@@ -1,6 +1,7 @@
-loop 5 times
+whileInput
+
 x = read
 y = read
-print x + 3*y
-printString endline
-endLoop
+
+print x + 3*y printString endline
+endWhileInput

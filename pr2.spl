@@ -1,5 +1,4 @@
-loop 3 times
+whileInput
 x = read
-print x printString space
-print x printString endline
-endLoop
+print x printString space print x printString endline
+endWhileInput

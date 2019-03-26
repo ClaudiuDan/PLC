@@ -1,7 +1,8 @@
-print 0
-printString endline
+print 0 printString endline
+x = read
+whileInput
 
-loop 4 times
-print read
-printString endline
-endLoop
+print x printString endline
+x = read
+
+endWhileInput

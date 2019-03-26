@@ -14,6 +14,8 @@ import Tokens
     read { TokenRead _ }
     loop { TokenLoop _ }
     endLoop { TokenEndLoop _ }
+    whileInput { TokenWhileInput _ }
+    endWhileInput { TokenEndWhileInput _ }
     '=' { TokenEq _ }
     '+' { TokenPlus _ }
     '-' { TokenMinus _ }
@@ -32,6 +34,7 @@ ListStatement : Statement { [$1] }
               | Statement ListStatement { $1 : $2 }
 
 Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
+          | whileInput ListStatement endWhileInput { While $2}
           | var '=' Exp { Assign $1 $3 }
           | print Exp              { Print $2 }
           | printString Exp        { PrintString $2}
@@ -66,6 +69,7 @@ data Exp =  Plus Exp Exp
 
 data Statement = Assign String Exp
                | Loop Exp [Statement]
+               | While [Statement]
                | Print Exp
                | PrintString Exp
                deriving Show
