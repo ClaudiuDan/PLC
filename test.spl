@@ -1,3 +1,14 @@
-v[2] = 3
-a[1] = v[2] * 3
-print a[1]
+x = 999
+print x printString endline
+
+x = 555
+print x printString endline
+
+y = 444
+print y printString endline
+
+y = x
+print y printString endline
+
+z = 222
+print z printString endline

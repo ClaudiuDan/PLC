@@ -52,7 +52,10 @@ evalStatements vars ((VecAssign v expr1 expr2) : statements) = do
 evalStatements vars ((Assign v expr) : statements) = do
                                                      r <- evalExpr expr vars
                                                      if (r /= "$isEOF$")
-                                                       then do newVars <- evalStatements ((Variable v r) : vars) statements
+                                                       then do 
+                                                               let newListOfVars = updateVars vars (Variable v r)
+                                                               print $ length newListOfVars
+                                                               newVars <- evalStatements newListOfVars statements
                                                                return newVars
                                                        else do newVars <- evalStatements vars statements
                                                                return newVars
@@ -75,6 +78,14 @@ evalStatements vars ((NotEOF s) : statements) = do
                                                   else do
                                                     newVars <- evalStatements vars statements
                                                     return newVars
+
+updateVars :: [Variable] -> Variable -> [Variable]
+updateVars [] var = [var]
+updateVars ( (Variable nameInList valueInList ) : xs) (Variable name value)
+  | nameInList == name = (Variable name value) : xs
+  | otherwise = (Variable nameInList valueInList ) : (updateVars xs (Variable name value))
+
+  
 
 loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
 loop 0 vars _ = return (vars)
