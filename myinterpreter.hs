@@ -45,6 +45,10 @@ evalStatements vars ((PrintString expr ) : statements) = do
                                                   when ( (c /= "endline") && (c /= "space") ) $ putStr . id $ c
                                                   newVars <- evalStatements vars statements
                                                   return newVars
+evalStatements vars ((VecAssign v expr1 expr2) : statements) = do
+                                                               evaluation <- evalExpr expr1 vars
+                                                               newVars <- evalStatements vars ((Assign (v ++ "[" ++ evaluation ++ "]") expr2) : statements)
+                                                               return newVars
 evalStatements vars ((Assign v expr) : statements) = do
                                                      r <- evalExpr expr vars
                                                      if (r /= "$isEOF$")
@@ -61,6 +65,16 @@ evalStatements vars ((While s) : statements) = do
                                                newVars <- whileInput vars s
                                                newVars2 <- evalStatements newVars statements
                                                return newVars2
+evalStatements vars ((NotEOF s) : statements) = do 
+                                                eof <- isEOF
+                                                if not $ eof 
+                                                  then do
+                                                    newVars <- evalStatements vars s
+                                                    newVars2 <- evalStatements newVars statements
+                                                    return newVars2
+                                                  else do
+                                                    newVars <- evalStatements vars statements
+                                                    return newVars
 
 loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
 loop 0 vars _ = return (vars)
@@ -80,6 +94,9 @@ whileInput vars statements = do
                                else return vars
 
 evalExpr :: Exp -> [Variable]  -> IO (String)
+evalExpr (VecVar var exp) vars = do
+                                 evaluated <- evalExpr exp vars
+                                 return (lookVar (var ++ "[" ++ evaluated ++ "]") vars)
 evalExpr (Read) vars  = do
                         eof <- isEOF
                         if eof

@@ -21,6 +21,8 @@ $white+       ;
   \^                { \p s -> TokenExp p }
   whileInput        { \p s -> TokenWhileInput p }
   endWhileInput     { \p s -> TokenEndWhileInput p }
+  notEOF            { \p s -> TokenNotEOF p }
+  endNotEOF            { \p s -> TokenEndNotEOF p }
   loop              { \p s -> TokenLoop p }
   endLoop           { \p s -> TokenEndLoop p }
   $digit+           { \p s -> TokenInt p (read s) }
@@ -31,6 +33,8 @@ $white+       ;
   \/                { \p s -> TokenDiv p }
   \(                { \p s -> TokenLParen p }
   \)                { \p s -> TokenRParen p }
+  \[                { \p s -> TokenOpenVec p }
+  \]                { \p s -> TokenCloseVec p } 
   $alpha [$alpha $digit \_ \’]*   { \p s -> TokenVar p s }
 
 {
@@ -53,6 +57,10 @@ data Token =
   TokenLParen   AlexPosn |
   TokenRParen   AlexPosn |
   TokenRead     AlexPosn |
+  TokenNotEOF      AlexPosn |
+  TokenEndNotEOF   AlexPosn |
+  TokenOpenVec     AlexPosn |
+  TokenCloseVec    AlexPosn |
   TokenPrintString AlexPosn |
   TokenVar         AlexPosn String
   deriving (Eq,Show)
@@ -78,5 +86,8 @@ tokenPosn (TokenPrintString (AlexPn a l c) ) = show(l) ++ ":" ++ show(c)
 
 tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-
+tokenPosn (TokenNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenEndNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenOpenVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCloseVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 }

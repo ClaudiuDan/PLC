@@ -1,8 +1,10 @@
 a = read
-print a printString endline
+print a printString endline 
+notEOF
 b = read
 print a + b printString endline
 b = a + b
+endNotEOF
 whileInput
 aux = read
 aux = aux + a + b
