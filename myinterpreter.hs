@@ -73,6 +73,62 @@ evalStatements vars ((NotEOF s) : statements) = do
                                                     newVars <- evalStatements vars statements
                                                     return newVars
 
+evalStatements vars ((If expr1 expr2 s '/') : statements) = 
+  do
+  evalExpr1 <- evalExpr expr1 vars
+  evalExpr2 <- evalExpr expr2 vars
+  if ( (read evalExpr1 :: Integer ) /= (read evalExpr2 :: Integer) )  
+    then do
+      newVars <- evalStatements vars s
+      newVars2 <- evalStatements newVars statements
+      return newVars2
+    else do
+      newVars <- evalStatements vars statements
+      return newVars
+
+evalStatements vars ((If expr1 expr2 s '=') : statements) = 
+  do
+  evalExpr1 <- evalExpr expr1 vars
+  evalExpr2 <- evalExpr expr2 vars
+  if ( (read evalExpr1 :: Integer ) == (read evalExpr2 :: Integer) )  
+    then do
+      newVars <- evalStatements vars s
+      newVars2 <- evalStatements newVars statements
+      return newVars2
+    else do
+      newVars <- evalStatements vars statements
+      return newVars
+
+evalStatements vars ((If expr1 expr2 s '<') : statements) = 
+  do
+  evalExpr1 <- evalExpr expr1 vars
+  evalExpr2 <- evalExpr expr2 vars
+  if ( (read evalExpr1 :: Integer ) < (read evalExpr2 :: Integer) )  
+    then do
+      newVars <- evalStatements vars s
+      newVars2 <- evalStatements newVars statements
+      return newVars2
+    else do
+      newVars <- evalStatements vars statements
+      return newVars
+
+evalStatements vars ((If expr1 expr2 s '>') : statements) = 
+  do
+  evalExpr1 <- evalExpr expr1 vars
+  evalExpr2 <- evalExpr expr2 vars
+  if ( (read evalExpr1 :: Integer ) > (read evalExpr2 :: Integer) )  
+    then do
+      newVars <- evalStatements vars s
+      newVars2 <- evalStatements newVars statements
+      return newVars2
+    else do
+      newVars <- evalStatements vars statements
+      return newVars 
+
+  
+--checkIf :: Expr -> Expr -> Char -> [Variable] -> [Statement] -> IO ([Variable])  
+--checkIf e1 e2
+
 updateVars :: [Variable] -> Variable -> [Variable]
 updateVars [] var = [var]
 updateVars ( (Variable nameInList valueInList ) : xs) (Variable name value)

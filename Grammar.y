@@ -29,7 +29,10 @@ import Tokens
     ')' { TokenRParen _ }
     '[' { TokenOpenVec _ }
     ']' { TokenCloseVec _ }
-
+    '>' { TokenHigher _ }
+    '<' { TokenLess _ }
+    if  { TokenIf _ }
+    endIf { TokenEndIf _ }
 %left '+' '-'
 %left '*' '/'
 %left '^'
@@ -42,6 +45,10 @@ Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | whileInput ListStatement endWhileInput { While $2 }
           | wi ListStatement endWhileInput { While $2 }
           | notEOF ListStatement endNotEOF { NotEOF $2 }
+          | if Exp '>' Exp ListStatement endIf { If $2 $4 $5 '>' }
+          | if Exp '<' Exp ListStatement endIf { If $2 $4 $5 '<' }
+          | if Exp '=' '=' Exp ListStatement endIf { If $2 $5 $6 '=' }
+          | if Exp '/' '=' Exp ListStatement endIf { If $2 $5 $6 '/' }  
           | var '[' Exp ']' '=' Exp { VecAssign $1 $3 $6 }
           | var '=' Exp { Assign $1 $3 }
           | print Exp              { Print $2 }
@@ -66,7 +73,7 @@ parseError :: [Token] -> a
 parseError []     = error "Unknown Parse error"
 parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
-data Exp =  Plus Exp Exp
+data Exp = Plus Exp Exp
          | Minus Exp Exp
          | Times Exp Exp
          | Div Exp Exp
@@ -84,5 +91,6 @@ data Statement = Assign String Exp
                | NotEOF [Statement]
                | Print Exp
                | PrintString Exp
+               | If Exp Exp [Statement] Char
                deriving Show
 }
