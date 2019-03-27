@@ -1,14 +1,3 @@
-x = 999
-print x printString endline
-
-x = 555
-print x printString endline
-
-y = 444
-print y printString endline
-
-y = x
-print y printString endline
-
-z = 222
-print z printString endline
+x[0] = 1
+y[0] = x[0] * 2
+print y[0]

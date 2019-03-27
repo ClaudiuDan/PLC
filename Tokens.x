@@ -19,6 +19,7 @@ $white+       ;
   sqrt              { \p s -> TokenSqrt p }
   read              { \p s -> TokenRead p }
   \^                { \p s -> TokenExp p }
+  wi                { \p s -> TokenWhileInput p }
   whileInput        { \p s -> TokenWhileInput p }
   endWhileInput     { \p s -> TokenEndWhileInput p }
   notEOF            { \p s -> TokenNotEOF p }
@@ -34,7 +35,7 @@ $white+       ;
   \(                { \p s -> TokenLParen p }
   \)                { \p s -> TokenRParen p }
   \[                { \p s -> TokenOpenVec p }
-  \]                { \p s -> TokenCloseVec p } 
+  \]                { \p s -> TokenCloseVec p }
   $alpha [$alpha $digit \_ \’]*   { \p s -> TokenVar p s }
 
 {

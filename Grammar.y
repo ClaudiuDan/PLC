@@ -14,6 +14,7 @@ import Tokens
     read { TokenRead _ }
     loop { TokenLoop _ }
     endLoop { TokenEndLoop _ }
+    wi        {TokenWhileInput _  }
     whileInput { TokenWhileInput _ }
     endWhileInput { TokenEndWhileInput _ }
     notEOF { TokenNotEOF _ }
@@ -26,7 +27,7 @@ import Tokens
     '/' { TokenDiv _ }
     '(' { TokenLParen _ }
     ')' { TokenRParen _ }
-    '[' { TokenOpenVec _ } 
+    '[' { TokenOpenVec _ }
     ']' { TokenCloseVec _ }
 
 %left '+' '-'
@@ -39,6 +40,7 @@ ListStatement : Statement { [$1] }
 
 Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | whileInput ListStatement endWhileInput { While $2 }
+          | wi ListStatement endWhileInput { While $2 }
           | notEOF ListStatement endNotEOF { NotEOF $2 }
           | var '[' Exp ']' '=' Exp { VecAssign $1 $3 $6 }
           | var '=' Exp { Assign $1 $3 }
@@ -75,7 +77,7 @@ data Exp =  Plus Exp Exp
          | VecVar String Exp
          deriving Show
 
-data Statement = Assign String Exp 
+data Statement = Assign String Exp
                | VecAssign String Exp Exp
                | Loop Exp [Statement]
                | While [Statement]

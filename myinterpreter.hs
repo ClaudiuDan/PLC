@@ -7,12 +7,6 @@ import System.Environment
 import System.IO
 import Control.Monad
 
-
---c <- evalExpr expr vars
---when (c == "endline")         putStrLn ""
---when(c == "space")                    putStr . id $ " "
---when ( (c /= "endline") && (c /= "space") ) putStr . id $ c
-
 data Variable = Variable String String
 
 main :: IO ()
@@ -52,25 +46,25 @@ evalStatements vars ((VecAssign v expr1 expr2) : statements) = do
 evalStatements vars ((Assign v expr) : statements) = do
                                                      r <- evalExpr expr vars
                                                      if (r /= "$isEOF$")
-                                                       then do 
+                                                       then do
                                                                let newListOfVars = updateVars vars (Variable v r)
-                                                               print $ length newListOfVars
                                                                newVars <- evalStatements newListOfVars statements
                                                                return newVars
                                                        else do newVars <- evalStatements vars statements
                                                                return newVars
 
 evalStatements vars ((Loop expr s) : statements) = do
-                                                   newVars <- loop (evalNum expr vars) vars s
+                                                   evaluation <- evalNum expr vars
+                                                   newVars <- loop evaluation vars s
                                                    newVars2 <- evalStatements newVars statements
                                                    return newVars2
 evalStatements vars ((While s) : statements) = do
                                                newVars <- whileInput vars s
                                                newVars2 <- evalStatements newVars statements
                                                return newVars2
-evalStatements vars ((NotEOF s) : statements) = do 
+evalStatements vars ((NotEOF s) : statements) = do
                                                 eof <- isEOF
-                                                if not $ eof 
+                                                if not $ eof
                                                   then do
                                                     newVars <- evalStatements vars s
                                                     newVars2 <- evalStatements newVars statements
@@ -85,14 +79,15 @@ updateVars ( (Variable nameInList valueInList ) : xs) (Variable name value)
   | nameInList == name = (Variable name value) : xs
   | otherwise = (Variable nameInList valueInList ) : (updateVars xs (Variable name value))
 
-  
+
 
 loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
-loop 0 vars _ = return (vars)
-loop n vars statements = do
-                         newVars <- evalStatements vars  statements
-                         newVars2 <- loop (n - 1) newVars statements
-                         return newVars2
+loop n vars statements
+  | n > 0 = do
+             newVars <- evalStatements vars  statements
+             newVars2 <- loop (n - 1) newVars statements
+             return newVars2
+  | otherwise = return vars
 
 whileInput :: [Variable] -> [Statement] -> IO ([Variable])
 whileInput vars statements = do
@@ -115,16 +110,36 @@ evalExpr (Read) vars  = do
                           else do x <- getInputNumber 0 False
                                   return $ show x
 evalExpr (Var x) vars =  return (lookVar x vars)
-evalExpr expr vars    =  return (show $ evalNum expr vars)
+evalExpr expr vars    = do
+                        evaluation <- evalNum expr vars
+                        return (show $ evaluation)
 
-evalNum :: Exp -> [Variable] -> Int
-evalNum (Int a)     vars = a
-evalNum (Var x)     vars = (read $ lookVar x vars)
-evalNum (Plus a b)  vars  = evalNum a vars + evalNum b vars
-evalNum (Minus a b) vars  = evalNum a vars - evalNum b vars
-evalNum (Times a b) vars  = evalNum a vars * evalNum b vars
-evalNum (Div a b)   vars  = evalNum a vars `div` evalNum b vars
-evalNum (Expo a b)  vars  = evalNum a vars ^ evalNum b vars
+evalNum :: Exp -> [Variable] -> IO(Int)
+evalNum (Int a)     vars  = return a
+evalNum (Var x)     vars =  return (read $ lookVar x vars)
+evalNum (VecVar name exp)  vars = do
+                                  evaluated <- evalExpr exp vars
+                                  return (read $ (lookVar (name ++ "[" ++ evaluated ++ "]") vars))
+evalNum (Plus a b)  vars  = do
+                            resa <- evalNum a vars
+                            resb <- evalNum b vars
+                            return (resa + resb)
+evalNum (Minus a b) vars  = do
+                            resa <- evalNum a vars
+                            resb <- evalNum b vars
+                            return (resa - resb)
+evalNum (Times a b) vars  = do
+                            resa <- evalNum a vars
+                            resb <- evalNum b vars
+                            return (resa * resb)
+evalNum (Div a b)   vars  = do
+                            resa <- evalNum a vars
+                            resb <- evalNum b vars
+                            return (resa `div` resb)
+evalNum (Expo a b)  vars  = do
+                            resa <- evalNum a vars
+                            resb <- evalNum b vars
+                            return (resa ^ resb)
 
 lookVar :: String -> [Variable] -> String
 lookVar x [] = x
