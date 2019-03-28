@@ -1,14 +1,18 @@
-a = read
-print a printString endline 
 notEOF
-b = read
-print a + b printString endline
-b = a + b
+  a = read
+  print : a \n :
 endNotEOF
+
+notEOF
+  b = read
+  print : a + b \n :
+  b = a + b
+endNotEOF
+
 whileInput
-aux = read
-aux = aux + a + b
-print aux printString endline
-a = b
-b = aux
+  aux = read
+  aux = aux + a + b
+  print : aux \n :
+  a = b
+  b = aux
 endWhileInput

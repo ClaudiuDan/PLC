@@ -1,7 +1,5 @@
 whileInput
-
-x = read
-y = read
-
-print x + 3*y printString endline
+  x = read
+  y = read
+  print : x + 3*y \n :
 endWhileInput

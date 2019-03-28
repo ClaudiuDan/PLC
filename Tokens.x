@@ -15,7 +15,6 @@ $white+       ;
   "End Genesis";
   times;
   print             { \p s -> TokenPrint p         }
-  printString       { \p s -> TokenPrintString p   }   
   sqrt              { \p s -> TokenSqrt p          }
   read              { \p s -> TokenRead p          }
   \^                { \p s -> TokenExp p           }
@@ -40,6 +39,8 @@ $white+       ;
   \]                { \p s -> TokenCloseVec p      }
   if                { \p s -> TokenIf p            }
   endIf             { \p s -> TokenEndIf p         }
+  \\                { \p s -> TokenBack p          }
+  \:                { \p s -> TokenPoints p        }
   $alpha [$alpha $digit \_ \’]*   { \p s -> TokenVar p s }
 
 {
@@ -71,6 +72,8 @@ data Token =
   TokenLess AlexPosn |
   TokenIf AlexPosn |
   TokenEndIf AlexPosn |
+  TokenBack AlexPosn |
+  TokenPoints AlexPosn |
   TokenVar         AlexPosn String
   deriving (Eq,Show)
 
@@ -91,7 +94,8 @@ tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenPrintString (AlexPn a l c) ) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenBack (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenPoints (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 
 tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)

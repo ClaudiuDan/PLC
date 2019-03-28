@@ -1,4 +1,4 @@
 whileInput
-x = read
-print x printString space print x printString endline
+  x = read
+  print : x \s x \n :
 endWhileInput

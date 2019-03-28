@@ -24,21 +24,25 @@ main' = do
         vars <- evalStatements [] parsedProg
         return ()
 
-
+printListExpr :: [Exp] -> [Variable] -> IO () 
+printListExpr [] vars = return ()
+printListExpr ( (Var "\\n") : listExpr) vars = do 
+                                          putStrLn ""
+                                          printListExpr listExpr vars
+printListExpr ( (Var "\\s") : listExpr) vars= do 
+                                          putStr . id $ " "
+                                          printListExpr listExpr vars
+printListExpr ( expr : listExpr) vars = do 
+                                   s <- evalExpr expr vars
+                                   when (s /= "$isEOF$") $ (putStr . id $ s)
+                                   printListExpr listExpr vars
 evalStatements :: [Variable] -> [Statement] -> IO ([Variable])
 evalStatements vars [] = return (vars)
-evalStatements vars ((Print expr) : statements) = do
-                                                  s <- evalExpr expr vars
-                                                  when (s /= "$isEOF$") $ (putStr . id $ s)
+evalStatements vars ((Print listExpr) : statements) = do
+                                                  printListExpr listExpr vars
                                                   newVars <- evalStatements vars statements
                                                   return newVars
-evalStatements vars ((PrintString expr ) : statements) = do
-                                                  c <- evalExpr expr vars
-                                                  when (c == "endline") $ putStrLn ""
-                                                  when (c == "space") $ putStr . id $ " "
-                                                  when ( (c /= "endline") && (c /= "space") ) $ putStr . id $ c
-                                                  newVars <- evalStatements vars statements
-                                                  return newVars
+                                                  
 evalStatements vars ((VecAssign v expr1 expr2) : statements) = do
                                                                evaluation <- evalExpr expr1 vars
                                                                newVars <- evalStatements vars ((Assign (v ++ "[" ++ evaluation ++ "]") expr2) : statements)

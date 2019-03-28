@@ -33,6 +33,8 @@ import Tokens
     '<' { TokenLess _ }
     if  { TokenIf _ }
     endIf { TokenEndIf _ }
+    '\\' { TokenBack _ }
+    ':' { TokenPoints _ }
 %left '+' '-'
 %left '*' '/'
 %left '^'
@@ -51,8 +53,7 @@ Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | if Exp '/' '=' Exp ListStatement endIf { If $2 $5 $6 '/' }  
           | var '[' Exp ']' '=' Exp { VecAssign $1 $3 $6 }
           | var '=' Exp { Assign $1 $3 }
-          | print Exp              { Print $2 }
-          | printString Exp        { PrintString $2}
+          | print ':' ListExp ':'             { Print $3 }
 
 ListExp : Exp { [$1] }
         | Exp ListExp { $1 : $2 }
@@ -64,9 +65,10 @@ Exp : Exp '+' Exp            { Plus $1 $3 }
     | Exp '^' Exp            { Expo $1 $3 }
     | var '[' Exp ']'        { VecVar $1 $3 }
     | read                   { Read }
-    | '(' Exp ')'            { $2 }
+    | '(' Exp ')'            { $2 } 
     | int                    { Int $1 }
-    | var                    { Var $1 }
+    | var                    { Var $1 } 
+    | '\\' var               { Var ('\\' : $2) }
 
 {
 parseError :: [Token] -> a
@@ -89,7 +91,7 @@ data Statement = Assign String Exp
                | Loop Exp [Statement]
                | While [Statement]
                | NotEOF [Statement]
-               | Print Exp
+               | Print [Exp]
                | PrintString Exp
                | If Exp Exp [Statement] Char
                deriving Show

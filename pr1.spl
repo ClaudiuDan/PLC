@@ -1,8 +1,9 @@
-print 0 printString endline
-x = read
+notEOF
+  print : 0 \n :
+  x = read
+endNotEOF
+
 whileInput
-
-print x printString endline
-x = read
-
+  print : x \n :
+  x = read
 endWhileInput

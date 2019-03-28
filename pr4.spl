@@ -1,6 +1,6 @@
 acc = 0
 whileInput
-x = read
-acc = acc + x
-print acc printString endline
+  x = read
+  acc = acc + x
+  print : acc \n :
 endWhileInput
