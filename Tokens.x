@@ -28,9 +28,9 @@ $white+       ;
   endNotEOF         { \p s -> TokenEndNotEOF p     }
 
   loop              { \p s -> TokenLoop p          }
-  "-->"               { \p s -> TokenLoopShort p          }
+  "&"               { \p s -> TokenLoopShort p          }
   endLoop           { \p s -> TokenEndLoop p       }
-  "-->;"              { \p s -> TokenEndLoopShort p       }
+  "&;"              { \p s -> TokenEndLoopShort p       }
   \-$digit+         { \p s -> TokenInt p (read s)  }
   $digit+           { \p s -> TokenInt p (read s)  }
   \=                { \p s -> TokenEq p            }
