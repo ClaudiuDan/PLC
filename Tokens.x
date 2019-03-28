@@ -12,6 +12,7 @@ tokens :-
 $white+       ;
   "--".*        ;
   times;
+  free              { \p s -> TokenDelete p        }
   print             { \p s -> TokenPrint p         }
   sqrt              { \p s -> TokenSqrt p          }
   read              { \p s -> TokenRead p          }
@@ -83,6 +84,7 @@ data Token =
   TokenEndIf AlexPosn |
   TokenBack AlexPosn |
   TokenPoints AlexPosn |
+  TokenDelete AlexPosn |
 
   TokenWhileInputShort AlexPosn |
   TokenEndWhileInputShort AlexPosn |
@@ -120,7 +122,13 @@ tokenPosn (TokenDiv (AlexPn a l c) )        = show(l) ++ ":" ++ show(c) ++ " \n 
 tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '(' ?"
 tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant ')' ?"
 tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c) ++ " \n •  Variable was wrongly typed"
-tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n•  Maybe you meant read ?"
+
+tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant read ?"
+tokenPosn (TokenReadShort (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '<-' ?"
+
+tokenPosn (TokenDelete (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant 'free' ?"
+
+
 
 tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant whileInput ?"
 tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant endWhileInput ?"

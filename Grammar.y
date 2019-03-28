@@ -48,6 +48,7 @@ import Tokens
 
     '\\' { TokenBack _ }
     ':' { TokenPoints _ }
+    del { TokenDelete _ }
 %left '+' '-'
 %left '*' '/'
 %left '^'
@@ -80,6 +81,7 @@ Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | var '[' Exp ']' '=' Exp { VecAssign $1 $3 $6 }
           | var '=' Exp { Assign $1 $3 }
           | print ':' ListExp ':'             { Print $3 }
+          | del var         { Delete $2 }
 
 ListExp : Exp { [$1] }
         | Exp ListExp { $1 : $2 }
@@ -124,6 +126,7 @@ data Statement = Assign String Exp
                | While [Statement]
                | NotEOF [Statement]
                | Print [Exp]
+               | Delete String
                | If Exp Exp [Statement] Char
                deriving Show
 }

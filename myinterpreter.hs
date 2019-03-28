@@ -24,15 +24,15 @@ main' = do
         vars <- evalStatements [] parsedProg
         return ()
 
-printListExpr :: [Exp] -> [Variable] -> IO () 
+printListExpr :: [Exp] -> [Variable] -> IO ()
 printListExpr [] vars = return ()
-printListExpr ( (Var "\\n") : listExpr) vars = do 
+printListExpr ( (Var "\\n") : listExpr) vars = do
                                           putStrLn ""
                                           printListExpr listExpr vars
-printListExpr ( (Var "\\s") : listExpr) vars= do 
+printListExpr ( (Var "\\s") : listExpr) vars= do
                                           putStr . id $ " "
                                           printListExpr listExpr vars
-printListExpr ( expr : listExpr) vars = do 
+printListExpr ( expr : listExpr) vars = do
                                    s <- evalExpr expr vars
                                    when (s /= "$isEOF$") $ (putStr . id $ s)
                                    printListExpr listExpr vars
@@ -42,7 +42,7 @@ evalStatements vars ((Print listExpr) : statements) = do
                                                   printListExpr listExpr vars
                                                   newVars <- evalStatements vars statements
                                                   return newVars
-                                                  
+
 evalStatements vars ((VecAssign v expr1 expr2) : statements) = do
                                                                evaluation <- evalExpr expr1 vars
                                                                newVars <- evalStatements vars ((Assign (v ++ "[" ++ evaluation ++ "]") expr2) : statements)
@@ -76,12 +76,16 @@ evalStatements vars ((NotEOF s) : statements) = do
                                                   else do
                                                     newVars <- evalStatements vars statements
                                                     return newVars
+evalStatements vars ((Delete x) : statements) = do
+                                                newVars <- evalStatements (deleteVar vars x) statements
+                                                return newVars
 
-evalStatements vars ((If expr1 expr2 s '/') : statements) = 
+
+evalStatements vars ((If expr1 expr2 s '/') : statements) =
   do
   evalExpr1 <- evalExpr expr1 vars
   evalExpr2 <- evalExpr expr2 vars
-  if ( (read evalExpr1 :: Integer ) /= (read evalExpr2 :: Integer) )  
+  if ( (read evalExpr1 :: Integer ) /= (read evalExpr2 :: Integer) )
     then do
       newVars <- evalStatements vars s
       newVars2 <- evalStatements newVars statements
@@ -90,11 +94,11 @@ evalStatements vars ((If expr1 expr2 s '/') : statements) =
       newVars <- evalStatements vars statements
       return newVars
 
-evalStatements vars ((If expr1 expr2 s '=') : statements) = 
+evalStatements vars ((If expr1 expr2 s '=') : statements) =
   do
   evalExpr1 <- evalExpr expr1 vars
   evalExpr2 <- evalExpr expr2 vars
-  if ( (read evalExpr1 :: Integer ) == (read evalExpr2 :: Integer) )  
+  if ( (read evalExpr1 :: Integer ) == (read evalExpr2 :: Integer) )
     then do
       newVars <- evalStatements vars s
       newVars2 <- evalStatements newVars statements
@@ -103,11 +107,11 @@ evalStatements vars ((If expr1 expr2 s '=') : statements) =
       newVars <- evalStatements vars statements
       return newVars
 
-evalStatements vars ((If expr1 expr2 s '<') : statements) = 
+evalStatements vars ((If expr1 expr2 s '<') : statements) =
   do
   evalExpr1 <- evalExpr expr1 vars
   evalExpr2 <- evalExpr expr2 vars
-  if ( (read evalExpr1 :: Integer ) < (read evalExpr2 :: Integer) )  
+  if ( (read evalExpr1 :: Integer ) < (read evalExpr2 :: Integer) )
     then do
       newVars <- evalStatements vars s
       newVars2 <- evalStatements newVars statements
@@ -116,21 +120,21 @@ evalStatements vars ((If expr1 expr2 s '<') : statements) =
       newVars <- evalStatements vars statements
       return newVars
 
-evalStatements vars ((If expr1 expr2 s '>') : statements) = 
+evalStatements vars ((If expr1 expr2 s '>') : statements) =
   do
   evalExpr1 <- evalExpr expr1 vars
   evalExpr2 <- evalExpr expr2 vars
-  if ( (read evalExpr1 :: Integer ) > (read evalExpr2 :: Integer) )  
+  if ( (read evalExpr1 :: Integer ) > (read evalExpr2 :: Integer) )
     then do
       newVars <- evalStatements vars s
       newVars2 <- evalStatements newVars statements
       return newVars2
     else do
       newVars <- evalStatements vars statements
-      return newVars 
+      return newVars
 
-  
---checkIf :: Expr -> Expr -> Char -> [Variable] -> [Statement] -> IO ([Variable])  
+
+--checkIf :: Expr -> Expr -> Char -> [Variable] -> [Statement] -> IO ([Variable])
 --checkIf e1 e2
 
 updateVars :: [Variable] -> Variable -> [Variable]
@@ -139,7 +143,19 @@ updateVars ( (Variable nameInList valueInList ) : xs) (Variable name value)
   | nameInList == name = (Variable name value) : xs
   | otherwise = (Variable nameInList valueInList ) : (updateVars xs (Variable name value))
 
+deleteVar :: [Variable] -> String -> [Variable]
+deleteVar [] _ = []
+deleteVar ( a@(Variable nameInList x) : xs) name
+  | sameName nameInList name = deleteVar xs name
+  | otherwise = a : deleteVar xs name
 
+sameName :: String -> String -> Bool
+sameName ('[':as) [] = True
+sameName [] [] = True
+sameName [] _ = False
+sameName (a:as) (b:bs)
+  | a == b = sameName as bs
+  | otherwise = False
 
 loop :: Int -> [Variable] -> [Statement] -> IO ([Variable])
 loop n vars statements
