@@ -11,8 +11,6 @@ $alpha = [a-zA-Z]
 tokens :-
 $white+       ;
   "--".*        ;
-  "Genesis".* ;
-  "End Genesis";
   times;
   print             { \p s -> TokenPrint p         }
   sqrt              { \p s -> TokenSqrt p          }
@@ -25,6 +23,7 @@ $white+       ;
   endNotEOF         { \p s -> TokenEndNotEOF p     }
   loop              { \p s -> TokenLoop p          }
   endLoop           { \p s -> TokenEndLoop p       }
+  \-$digit+         { \p s -> TokenInt p (read s)  }
   $digit+           { \p s -> TokenInt p (read s)  }
   \=                { \p s -> TokenEq p            }
   \>                { \p s -> TokenHigher p        }
@@ -79,33 +78,37 @@ data Token =
 
 
 tokenPosn :: Token -> String
-tokenPosn (TokenInt (AlexPn a l c) _ )      = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenPrint (AlexPn a l c) )      = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenEq (AlexPn a l c) )         = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenMinus (AlexPn a l c) )      = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenPlus (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenLoop (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenExp (AlexPn a l c) )        = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenEndLoop (AlexPn a l c) )    = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenSqrt (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenTimes (AlexPn a l c) )      = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenDiv (AlexPn a l c) )        = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenBack (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenPoints (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenInt (AlexPn a l c) _ )      = show(l) ++ ":" ++ show(c) ++ " \n •  Int was wrongly typed"
+tokenPosn (TokenPrint (AlexPn a l c) )      = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant print ?"
+tokenPosn (TokenEq (AlexPn a l c) )         = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '= ?"
+tokenPosn (TokenMinus (AlexPn a l c) )      = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '-' ?"
+tokenPosn (TokenPlus (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '+' ?"
+tokenPosn (TokenLoop (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant loop ?"
+tokenPosn (TokenExp (AlexPn a l c) )        = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '^' ?"
+tokenPosn (TokenEndLoop (AlexPn a l c) )    = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant endLop ?"
+tokenPosn (TokenSqrt (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant sqrt ?"
+tokenPosn (TokenTimes (AlexPn a l c) )      = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '*' ?"
+tokenPosn (TokenDiv (AlexPn a l c) )        = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '/' ?"
+tokenPosn (TokenLParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '(' ?"
+tokenPosn (TokenRParen (AlexPn a l c) )     = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant ')' ?"
+tokenPosn (TokenVar (AlexPn a l c) _)       = show(l) ++ ":" ++ show(c) ++ " \n •  Variable was wrongly typed"
+tokenPosn (TokenRead (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n•  Maybe you meant read ?"
+tokenPosn (TokenPrintString (AlexPn a l c) ) = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant printString ?"
 
-tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenEndNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenOpenVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenCloseVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant whileInput ?"
+tokenPosn (TokenEndWhileInput (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant endWhileInput ?"
+tokenPosn (TokenNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant notEOF ?"
+tokenPosn (TokenEndNotEOF (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • Maybe you meant endNotEOF ?"
+tokenPosn (TokenOpenVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '[' ?"
+tokenPosn (TokenCloseVec (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant ']' ?"
 
-tokenPosn (TokenHigher (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenLess (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenIf (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenEndIf (AlexPn a l c) )       = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenHigher (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • Maybe you meant '>' ?"
+tokenPosn (TokenLess (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n •  Maybe you meant '<' ?"
+tokenPosn (TokenIf (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • Maybe you meant if ?"
+tokenPosn (TokenEndIf (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • v Maybe you meant endIf ?"
+
+
+
+tokenPosn (TokenBack (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • Maybe you meant '\\' ?"
+tokenPosn (TokenPoints (AlexPn a l c) )       = show(l) ++ ":" ++ show(c) ++ " \n • Maybe you meant ':' ?"
 }

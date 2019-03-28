@@ -50,7 +50,7 @@ Statement : loop Exp ListStatement endLoop { Loop $2 $3 }
           | if Exp '>' Exp ListStatement endIf { If $2 $4 $5 '>' }
           | if Exp '<' Exp ListStatement endIf { If $2 $4 $5 '<' }
           | if Exp '=' '=' Exp ListStatement endIf { If $2 $5 $6 '=' }
-          | if Exp '/' '=' Exp ListStatement endIf { If $2 $5 $6 '/' }  
+          | if Exp '/' '=' Exp ListStatement endIf { If $2 $5 $6 '/' }
           | var '[' Exp ']' '=' Exp { VecAssign $1 $3 $6 }
           | var '=' Exp { Assign $1 $3 }
           | print ':' ListExp ':'             { Print $3 }
@@ -65,14 +65,19 @@ Exp : Exp '+' Exp            { Plus $1 $3 }
     | Exp '^' Exp            { Expo $1 $3 }
     | var '[' Exp ']'        { VecVar $1 $3 }
     | read                   { Read }
-    | '(' Exp ')'            { $2 } 
+    | '(' Exp ')'            { $2 }
     | int                    { Int $1 }
-    | var                    { Var $1 } 
+    | var                    { Var $1 }
     | '\\' var               { Var ('\\' : $2) }
 
 {
+
 parseError :: [Token] -> a
-parseError []     = error "Unknown Parse error"
+parseError []     = error " Unclosed statemet \n\
+      \   • whileInput Statement?  \n\
+      \   • loop Statement? \n\
+      \   • if Statement? \n\
+      \   • notEOF Statement?"
 parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
 data Exp = Plus Exp Exp
